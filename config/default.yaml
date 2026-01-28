@@ -1,0 +1,204 @@
+# Trading System Configuration
+# 환경변수 사용: ${VAR_NAME} 또는 ${VAR_NAME:default_value}
+
+app_name: "TradingSystem"
+log_level: "INFO"
+debug: false
+
+# =============================================================================
+# 데이터 소스
+# =============================================================================
+sources:
+  # Yahoo Finance (미국 주식)
+  - name: "yfinance_us"
+    type: "yfinance"
+    enabled: true
+    params: {}
+
+  # 한국 주식 (FinanceDataReader)
+  - name: "krx_korea"
+    type: "krx"
+    enabled: true
+    params:
+      use_pykrx: false
+
+  # 암호화폐 (Binance)
+  - name: "binance_crypto"
+    type: "binance"
+    enabled: false
+    params:
+      exchange_id: "binance"
+      api_key: "${BINANCE_API_KEY:}"
+      secret: "${BINANCE_SECRET:}"
+
+  # 재무 데이터 (Financial Modeling Prep)
+  - name: "fmp_financials"
+    type: "fmp"
+    enabled: false
+    params:
+      api_key: "${FMP_API_KEY:}"
+
+# =============================================================================
+# 저장소
+# =============================================================================
+storage:
+  type: "sqlite"  # sqlite, parquet, hybrid
+  path: "./data"
+  params:
+    compression: "snappy"  # parquet용
+
+# =============================================================================
+# 인디케이터
+# =============================================================================
+indicators:
+  # 클래식 지표
+  - name: "ma_cross"
+    type: "ma"
+    enabled: true
+    params:
+      fast_period: 20
+      slow_period: 50
+
+  - name: "rsi"
+    type: "rsi"
+    enabled: true
+    params:
+      period: 14
+      overbought: 70
+      oversold: 30
+
+  - name: "macd"
+    type: "macd"
+    enabled: true
+    params:
+      fast: 12
+      slow: 26
+      signal: 9
+
+  # SMC (Smart Money Concept)
+  - name: "smc_structure"
+    type: "smc"
+    enabled: true
+    params:
+      swing_length: 10
+
+  # Supply/Demand
+  - name: "supply_demand"
+    type: "supply_demand"
+    enabled: true
+    params:
+      lookback: 50
+      min_touches: 2
+
+# =============================================================================
+# 전략 (스크리너)
+# =============================================================================
+strategies:
+  # 퀀트 스크리너 (중장기)
+  - name: "quant_value"
+    type: "quant_screener"
+    enabled: true
+    indicators: []
+    params:
+      # 가치
+      max_per: 15
+      max_ev_ebitda: 10
+      # 수익성
+      min_roic: 15
+      min_fcf_yield: 5
+      # 성장
+      min_ebitda_growth: 20
+      # 모멘텀 (눌림목)
+      min_return_6m: 20
+      max_return_1m: 0
+
+  # 스윙 트레이딩 (미너비니 스타일)
+  - name: "swing_momentum"
+    type: "swing_screener"
+    enabled: true
+    indicators: ["ma_cross", "rsi"]
+    params:
+      # 추세 조건
+      price_above_ma50: true
+      ma50_above_ma150: true
+      ma150_above_ma200: true
+      # 가격 위치
+      min_from_52w_low: 30
+      max_from_52w_high: 25
+      # 상대강도
+      min_rs_rating: 80
+
+  # SMC 트레이딩
+  - name: "smc_zones"
+    type: "smc_strategy"
+    enabled: false
+    indicators: ["smc_structure", "supply_demand"]
+    params:
+      look_for_bos: true
+      zone_type: "demand"  # demand, supply
+
+# =============================================================================
+# 알람
+# =============================================================================
+alerts:
+  - type: "telegram"
+    enabled: false
+    params:
+      bot_token: "${TELEGRAM_BOT_TOKEN:}"
+      chat_id: "${TELEGRAM_CHAT_ID:}"
+
+  - type: "discord"
+    enabled: false
+    params:
+      webhook_url: "${DISCORD_WEBHOOK_URL:}"
+
+# =============================================================================
+# 스케줄
+# =============================================================================
+schedule:
+  # 데이터 업데이트
+  data_update:
+    enabled: true
+    cron: "0 9 * * 1-5"  # 평일 오전 9시
+    markets: ["kospi", "kosdaq"]
+
+  # 스크리닝
+  screening:
+    enabled: true
+    cron: "30 9 * * 1-5"  # 평일 오전 9시 30분
+    strategies: ["quant_value", "swing_momentum"]
+
+# =============================================================================
+# 사용자 정의 설정
+# =============================================================================
+custom:
+  # 유니버스 설정
+  universe:
+    # 한국
+    korea:
+      min_market_cap: 100000000000  # 1000억
+      exclude_sectors: ["금융"]
+
+    # 미국
+    us:
+      indices: ["nasdaq100", "sp500"]
+      min_avg_volume: 1000000
+
+  # 백테스팅
+  backtest:
+    start_date: "2020-01-01"
+    end_date: "2024-12-31"
+    initial_capital: 100000000
+    commission: 0.00015
+
+  # LLM 전문가
+  experts:
+    chart_analyst:
+      enabled: false
+      model: "gpt-4"
+      api_key: "${OPENAI_API_KEY:}"
+
+    fundamental_analyst:
+      enabled: false
+      model: "claude-3-opus"
+      api_key: "${ANTHROPIC_API_KEY:}"

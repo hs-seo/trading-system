@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+data/cache/
+data/universe_cache/
+*.log
+*.parquet
+
+# Secrets (IMPORTANT!)
+.env
+.env.local
+secrets.toml
+config/secrets.yaml
+*.pem
+*.key
+
+# Jupyter
+.ipynb_checkpoints/

@@ -1,0 +1,44 @@
+# Trading System Requirements
+# Install: pip install -r requirements.txt
+
+# Core
+pandas>=2.0.0
+numpy>=1.24.0
+pyyaml>=6.0
+
+# Data Sources
+yfinance>=0.2.28
+finance-datareader>=0.9.50
+# pykrx>=1.0.34  # Alternative Korean stock data
+ccxt>=4.0.0  # Crypto exchanges
+
+# Financial Data (Optional - requires API key)
+# requests>=2.31.0  # For FMP API
+
+# Technical Analysis
+# ta-lib  # Optional: Requires system library
+pandas-ta>=0.3.14b  # Pure Python alternative
+
+# Storage
+pyarrow>=14.0.0  # For Parquet support
+# psycopg2-binary>=2.9.9  # For PostgreSQL (optional)
+
+# Async Support
+aiohttp>=3.9.0
+
+# Visualization
+plotly>=5.18.0
+mplfinance>=0.12.10
+
+# Dashboard
+streamlit>=1.29.0
+
+# ML/AI (Optional)
+# scikit-learn>=1.3.0
+# torch>=2.1.0
+# openai>=1.0.0  # For LLM integration
+
+# Development
+# pytest>=7.4.0
+# black>=23.0.0
+# mypy>=1.7.0
