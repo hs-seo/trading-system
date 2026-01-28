@@ -118,7 +118,7 @@ p, span, div, label {
 /* === 버튼 === */
 .stButton > button {
     background: var(--primary) !important;
-    color: var(--bg-primary) !important;
+    color: #ffffff !important;  /* 흰색 텍스트 */
     border: none !important;
     border-radius: 6px !important;
     padding: 0.5rem 1rem !important;
@@ -130,11 +130,17 @@ p, span, div, label {
 .stButton > button:hover {
     background: var(--primary-dim) !important;
     box-shadow: 0 0 20px var(--primary-bg);
+    color: #ffffff !important;
 }
 .stButton > button[kind="secondary"] {
     background: var(--bg-tertiary) !important;
     color: var(--text-primary) !important;
     border: 1px solid var(--border) !important;
+}
+/* 버튼 내부 span/p 태그도 흰색으로 */
+.stButton > button span,
+.stButton > button p {
+    color: #ffffff !important;
 }
 
 /* === 입력 필드 === */
@@ -170,6 +176,30 @@ p, span, div, label {
 }
 [data-baseweb="menu"] li:hover {
     background: var(--bg-tertiary) !important;
+}
+
+/* 멀티셀렉트 - 선택된 태그 스타일 */
+.stMultiSelect [data-baseweb="tag"] {
+    background: var(--bg-tertiary) !important;
+    border: none !important;
+    border-radius: 4px !important;
+}
+.stMultiSelect [data-baseweb="tag"] span {
+    color: var(--text-primary) !important;
+}
+.stMultiSelect [data-baseweb="tag"] svg {
+    fill: var(--text-muted) !important;
+}
+.stMultiSelect [data-baseweb="tag"]:hover {
+    background: var(--border-light) !important;
+}
+/* 멀티셀렉트 입력 */
+.stMultiSelect input {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+}
+.stMultiSelect input::placeholder {
+    color: var(--text-muted) !important;
 }
 
 /* === 탭 === */
@@ -763,12 +793,45 @@ div[data-testid="stExpander"] div[data-testid="stVerticalBlock"] { gap: 0.125rem
     color: var(--bear) !important;
 }
 
-/* 슬라이더 */
-.stSlider > div > div {
+/* 슬라이더 - 완전 다크 스타일 */
+.stSlider {
+    padding-top: 0.5rem !important;
+}
+.stSlider > div > div > div {
     background: var(--bg-tertiary) !important;
 }
-.stSlider [data-baseweb="slider"] div {
+.stSlider [data-baseweb="slider"] {
+    background: transparent !important;
+}
+.stSlider [data-baseweb="slider"] > div {
+    background: var(--bg-tertiary) !important;
+    height: 6px !important;
+    border-radius: 3px !important;
+}
+.stSlider [data-baseweb="slider"] > div > div {
     background: var(--primary) !important;
+    height: 6px !important;
+    border-radius: 3px !important;
+}
+/* 슬라이더 thumb */
+.stSlider [data-baseweb="slider"] [role="slider"] {
+    background: var(--primary) !important;
+    border: 2px solid var(--bg-primary) !important;
+    box-shadow: 0 0 8px var(--primary-bg) !important;
+    width: 16px !important;
+    height: 16px !important;
+}
+.stSlider [data-baseweb="slider"] [role="slider"]:focus {
+    box-shadow: 0 0 12px var(--primary) !important;
+}
+/* 슬라이더 라벨 */
+.stSlider label {
+    color: var(--text-secondary) !important;
+}
+.stSlider [data-testid="stTickBarMin"],
+.stSlider [data-testid="stTickBarMax"] {
+    color: var(--text-muted) !important;
+    font-family: var(--font-mono) !important;
 }
 
 /* 라디오 버튼 */
@@ -778,6 +841,9 @@ div[data-testid="stExpander"] div[data-testid="stVerticalBlock"] { gap: 0.125rem
 .stRadio [data-baseweb="radio"] {
     background: var(--bg-secondary) !important;
     border-color: var(--border) !important;
+}
+.stRadio [data-baseweb="radio"]:hover {
+    border-color: var(--primary) !important;
 }
 
 /* 프로그레스 바 */
