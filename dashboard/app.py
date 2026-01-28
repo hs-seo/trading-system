@@ -426,11 +426,56 @@ def init_session_state():
         if k not in st.session_state:
             st.session_state[k] = v
 
+@st.cache_resource
 def load_managers():
+    """매니저 로드 (캐시됨)"""
     from screener.ideas import IdeaManager, MarketCondition
     from screener.universe import UniverseManager
     from screener.runner import ScreenerRunner
     return IdeaManager(), UniverseManager(), ScreenerRunner(), MarketCondition
+
+
+@st.cache_data(ttl=300)  # 5분 캐시
+def fetch_stock_data_cached(symbol: str, period: str = "6mo"):
+    """주가 데이터 캐시 (5분)"""
+    try:
+        import yfinance as yf
+        ticker = yf.Ticker(symbol)
+        df = ticker.history(period=period)
+        if df.empty:
+            return None
+        df.columns = df.columns.str.lower()
+        df = df.reset_index()
+        df = df.rename(columns={'date': 'timestamp'})
+        return df
+    except Exception:
+        return None
+
+
+@st.cache_data(ttl=600)  # 10분 캐시
+def get_universe_symbols_cached(universe_name: str):
+    """유니버스 종목 리스트 캐시"""
+    from data.universe import get_universe_manager, Universe
+    manager = get_universe_manager()
+    try:
+        universe = Universe[universe_name.upper()]
+        return manager.get_symbols(universe)
+    except KeyError:
+        return []
+
+
+@st.cache_resource
+def get_data_layer_cached():
+    """데이터 레이어 매니저 캐시 (리소스)"""
+    from data.data_layer import get_data_layer_manager
+    return get_data_layer_manager()
+
+
+@st.cache_data(ttl=300, show_spinner=False)  # 5분 캐시
+def fetch_ohlcv_cached(symbol: str, days: int = 180):
+    """OHLCV 데이터 캐시"""
+    dlm = get_data_layer_cached()
+    return dlm.get_data(symbol, days=days, with_indicators=True)
 
 def auto_detect_market(market_code: str = "us"):
     """시장 상황 자동 감지 (캐시 우선)"""
@@ -2309,10 +2354,9 @@ def _render_confluence_tab():
         )
 
         screener = ConfluenceScreener(config)
-        dlm = get_data_layer_manager()
 
         def data_fetcher(symbol):
-            return dlm.get_data(symbol, days=180, with_indicators=True)
+            return fetch_ohlcv_cached(symbol, days=180)
 
         progress = st.progress(0)
         status = st.empty()
