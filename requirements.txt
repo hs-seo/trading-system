@@ -28,7 +28,7 @@ aiohttp>=3.9.0
 
 # Visualization
 plotly>=5.18.0
-mplfinance>=0.12.10
+mplfinance>=0.12.9b0  # Beta version for Python 3.13 compatibility
 
 # Dashboard
 streamlit>=1.29.0
