@@ -1933,15 +1933,16 @@ def render_chart_page():
 
     from dashboard.charts import create_candlestick_chart, create_technical_summary, get_signal_color
 
-    # 상단 입력
-    col1, col2, col3 = st.columns([2, 1, 1])
+    # 상단 입력 - 정렬 개선
+    col1, col2, col3 = st.columns([3, 2, 1])
 
     with col1:
         symbol = st.text_input(
             "종목 심볼",
             value=st.session_state.get("chart_symbol", "AAPL"),
             placeholder="AAPL, MSFT, 005930.KS...",
-            key="chart_symbol_input"
+            key="chart_symbol_input",
+            label_visibility="collapsed"
         ).strip().upper()
 
     with col2:
@@ -1949,13 +1950,14 @@ def render_chart_page():
             "기간",
             ["1M", "3M", "6M", "1Y", "2Y"],
             index=2,
-            key="chart_period"
+            key="chart_period",
+            label_visibility="collapsed"
         )
         period_days = {"1M": 30, "3M": 90, "6M": 180, "1Y": 365, "2Y": 730}
         days = period_days.get(period, 180)
 
     with col3:
-        if st.button("차트 로드", type="primary", width="stretch"):
+        if st.button("차트 로드", type="primary", use_container_width=True):
             st.session_state["chart_symbol"] = symbol
 
     if not symbol:
@@ -1978,25 +1980,27 @@ def render_chart_page():
         st.error(f"데이터 로드 실패: {e}")
         return
 
-    # 차트 옵션
+    # 차트 옵션 - 정렬 개선
     st.markdown("---")
-    col_opt1, col_opt2, col_opt3, col_opt4, col_opt5 = st.columns(5)
 
-    with col_opt1:
-        show_ma = st.multiselect(
-            "이동평균선",
-            [5, 10, 20, 50, 100, 200],
-            default=[20, 50, 200],
-            key="chart_ma"
-        )
-    with col_opt2:
+    # 첫 번째 행: 이동평균선 (전체 너비)
+    show_ma = st.multiselect(
+        "이동평균선",
+        [5, 10, 20, 50, 100, 200],
+        default=[20, 50, 200],
+        key="chart_ma"
+    )
+
+    # 두 번째 행: 지표 옵션들 (균등 분할)
+    opt_col1, opt_col2, opt_col3, opt_col4 = st.columns(4)
+    with opt_col1:
         show_bb = st.checkbox("볼린저 밴드", value=True, key="chart_bb")
-    with col_opt3:
+    with opt_col2:
         show_macd = st.checkbox("MACD", value=True, key="chart_macd")
-    with col_opt4:
+    with opt_col3:
         show_rsi = st.checkbox("RSI", value=True, key="chart_rsi")
-    with col_opt5:
-        show_signals = st.checkbox("📍 시그널 표시", value=True, key="chart_signals")
+    with opt_col4:
+        show_signals = st.checkbox("📍 시그널", value=True, key="chart_signals")
 
     # 시그널 데이터 확인 (세션에서 가져오기)
     signal_data = None
@@ -2847,40 +2851,48 @@ def _render_confluence_tab():
     # 가이드
     _render_confluence_guide()
 
-    # 설정
+    # 설정 - 레이아웃 개선
     with st.expander("스크리닝 설정", expanded=True):
-        col1, col2, col3, col4 = st.columns(4)
+        # 첫 번째 행: 기본 필터 (슬라이더들)
+        st.markdown('<p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">기본 필터</p>', unsafe_allow_html=True)
+        row1_col1, row1_col2, row1_col3, row1_col4 = st.columns(4)
 
-        with col1:
-            st.markdown("**존(Zone) 설정**")
+        with row1_col1:
             max_dist = st.slider("최대 거리 (%)", 1.0, 10.0, 5.0, 0.5, key="cf_max_dist")
+        with row1_col2:
+            min_score = st.slider("최소 총점", 20, 80, 35, 5, key="cf_min_score")
+        with row1_col3:
             min_grade = st.selectbox("최소 존 등급", ["C", "B", "A", "S"], index=0, key="cf_min_grade")
-            only_fresh = st.checkbox("미터치 존만", value=False, key="cf_fresh")
-            only_golden = st.checkbox("골든존만", value=False, key="cf_golden")
-
-        with col2:
-            st.markdown("**점수 필터**")
+        with row1_col4:
             direction = st.radio(
                 "방향",
-                ["전체", "롱 (매수)", "숏 (매도)"],
+                ["전체", "롱", "숏"],
                 horizontal=True,
                 key="cf_direction"
             )
-            direction_map = {"전체": "all", "롱 (매수)": "long", "숏 (매도)": "short"}
-            min_score = st.slider("최소 총점", 20, 80, 35, 5, key="cf_min_score")
+            direction_map = {"전체": "all", "롱": "long", "숏": "short"}
 
-        with col3:
-            st.markdown("**시그널 필터**")
-            require_trigger = st.checkbox("GO 시그널만 (트리거 확인됨)", value=False, key="cf_require_trigger")
+        st.markdown("---")
+
+        # 두 번째 행: 체크박스 필터들
+        st.markdown('<p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">상세 필터</p>', unsafe_allow_html=True)
+        row2_col1, row2_col2, row2_col3, row2_col4 = st.columns(4)
+
+        with row2_col1:
+            only_fresh = st.checkbox("미터치 존만", value=False, key="cf_fresh")
+            only_golden = st.checkbox("골든존만", value=False, key="cf_golden")
+
+        with row2_col2:
+            require_trigger = st.checkbox("GO 시그널만", value=False, key="cf_require_trigger", help="트리거 캔들 확인된 시그널만")
             use_htf = st.checkbox("HTF 정렬 필터", value=True, key="cf_htf")
-            st.caption("트리거 강도: ◆IBFB > ▲PIN/ENG > ●DOJI")
 
-        with col4:
-            st.markdown("**컨텍스트 필터** 🆕")
+        with row2_col3:
             use_context = st.checkbox("컨텍스트 분석", value=True, key="cf_use_context", help="장기추세, 매물대, 박스권, 하락폭 분석")
-            exclude_range = st.checkbox("박스권 제외", value=False, key="cf_exclude_range", help="장기 횡보 종목 제외")
-            exclude_drawdown = st.checkbox("급락 종목 제외", value=False, key="cf_exclude_dd", help="고점 대비 30% 이상 하락 종목 제외")
-            exclude_dense = st.checkbox("저항 밀집 제외", value=False, key="cf_exclude_dense", help="TP까지 저항이 많은 종목 제외")
+            exclude_range = st.checkbox("박스권 제외", value=False, key="cf_exclude_range")
+
+        with row2_col4:
+            exclude_drawdown = st.checkbox("급락 종목 제외", value=False, key="cf_exclude_dd", help="고점 대비 30% 이상 하락")
+            exclude_dense = st.checkbox("저항 밀집 제외", value=False, key="cf_exclude_dense")
 
     # 유니버스 선택
     st.markdown("---")
