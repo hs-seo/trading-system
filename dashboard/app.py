@@ -539,7 +539,45 @@ p, span, div, label {
 /* Streamlit 기본 요소 숨김 */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
-header {visibility: hidden;}
+
+/* 데스크탑에서는 헤더 숨기기 */
+@media (min-width: 769px) {
+    header {visibility: hidden;}
+}
+
+/* 모바일에서 헤더(햄버거 메뉴) 보이기 + 다크 스타일 */
+@media (max-width: 768px) {
+    header {
+        background: var(--bg-secondary) !important;
+    }
+    header [data-testid="stHeader"] {
+        background: var(--bg-secondary) !important;
+    }
+    /* 햄버거 버튼 스타일 */
+    button[kind="header"] {
+        color: var(--text-primary) !important;
+    }
+    [data-testid="collapsedControl"] {
+        color: var(--text-primary) !important;
+        background: var(--bg-secondary) !important;
+    }
+    [data-testid="collapsedControl"] svg {
+        fill: var(--text-primary) !important;
+        stroke: var(--text-primary) !important;
+    }
+    /* 모바일 전용 레이아웃 조정 */
+    .main .block-container {
+        padding: 0.5rem 0.75rem !important;
+    }
+    /* 모바일에서 컬럼 스택 */
+    [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+    }
+    /* 사이드바 오버레이 스타일 */
+    [data-testid="stSidebar"] {
+        z-index: 999 !important;
+    }
+}
 
 /* Expander 스타일 - 다크 */
 .streamlit-expanderHeader {
