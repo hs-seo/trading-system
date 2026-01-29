@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  stocklens:
+    build: .
+    container_name: stocklens-dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      # 데이터 캐시 영속화 (선택사항)
+      - ./data:/app/data
+    environment:
+      - TZ=Asia/Seoul
+    restart: unless-stopped
+    # 리소스 제한 (선택사항 - 시놀로지에서 조절 가능)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 2G

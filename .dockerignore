@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+.eggs
+dist
+build
+.venv
+venv
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+data/cache
+data/universe_cache
+*.log
+
+# Secrets
+.env
+.env.local
+secrets.toml
+config/secrets.yaml
+
+# Jupyter
+.ipynb_checkpoints
+
+# Docker
+Dockerfile
+docker-compose.yml
