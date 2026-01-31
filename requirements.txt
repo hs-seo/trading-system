@@ -17,7 +17,7 @@ ccxt>=4.0.0  # Crypto exchanges
 
 # Technical Analysis
 # ta-lib  # Optional: Requires system library
-pandas-ta>=0.3.14b  # Pure Python alternative
+ta>=0.11.0  # Pure Python technical analysis (pandas-ta alternative)
 
 # Storage
 pyarrow>=14.0.0  # For Parquet support
