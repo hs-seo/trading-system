@@ -1144,7 +1144,7 @@ def get_data_layer_cached():
     return get_data_layer_manager()
 
 
-@st.cache_data(ttl=300, show_spinner=False)  # 5분 캐시
+@st.cache_data(ttl=1800, show_spinner=False)  # 30분 캐시 (API 부하 감소)
 def fetch_ohlcv_cached(symbol: str, days: int = 180):
     """OHLCV 데이터 캐시"""
     dlm = get_data_layer_cached()
@@ -2996,7 +2996,7 @@ def _render_confluence_tab():
         symbol_limit = limit_options[limit_choice]
 
     with col_v3:
-        workers = st.selectbox("병렬 처리", [3, 5, 10], index=1, key="cf_workers")
+        workers = st.selectbox("병렬 처리", [5, 10, 15, 20], index=1, key="cf_workers")
 
     # 종목 리스트 가져오기
     if selected_universe is None:  # 직접 입력
@@ -3019,8 +3019,27 @@ def _render_confluence_tab():
 
     st.caption(f"총 {len(symbols)}개 종목 스캔 예정")
 
+    # 데이터 프리페치 (캐시 워밍)
+    col_btn1, col_btn2 = st.columns(2)
+    with col_btn1:
+        if st.button("📥 데이터 프리로드", help="스캔 전 데이터를 미리 캐시합니다 (첫 실행시 권장)"):
+            progress = st.progress(0)
+            status = st.empty()
+            for i, symbol in enumerate(symbols):
+                try:
+                    fetch_ohlcv_cached(symbol, days=180)
+                    status.text(f"프리로드: {symbol} ({i+1}/{len(symbols)})")
+                except:
+                    pass
+                progress.progress((i + 1) / len(symbols))
+            progress.empty()
+            status.success(f"✅ {len(symbols)}개 종목 데이터 캐시 완료!")
+
     # 스캔 실행
-    if st.button("🎯 컨플루언스 스캔 실행", type="primary", width="stretch"):
+    with col_btn2:
+        scan_clicked = st.button("🎯 컨플루언스 스캔 실행", type="primary")
+
+    if scan_clicked:
         config = ConfluenceConfig(
             max_distance_pct=max_dist,
             min_zone_grade=min_grade,
